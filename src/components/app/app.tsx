@@ -44,17 +44,20 @@ const App = () => {
     {
       path: '/feed/:number',
       element: <OrderInfo />,
-      title: 'Детали заказа'
+      title: 'Детали заказа',
+      authProtected: false
     },
     {
       path: '/ingredients/:id',
       element: <IngredientDetails />,
-      title: 'Детали ингредиента'
+      title: 'Детали ингредиента',
+      authProtected: false
     },
     {
       path: '/profile/orders/:number',
       element: <OrderInfo />,
-      title: 'Детали заказа'
+      title: 'Детали заказа',
+      authProtected: true
     }
   ];
 
@@ -96,20 +99,35 @@ const App = () => {
         <Route path='/feed' element={<Feed />} />
         <Route path='/feed/:number' element={<OrderInfo />} />
         <Route path='/ingredients/:id' element={<IngredientDetails />} />
-        <Route path='/profile/orders/:number' element={<OrderInfo />} />
+        <Route
+          path='/profile/orders/:number'
+          element={
+            <ProtectedRoute authProtected>
+              <OrderInfo />
+            </ProtectedRoute>
+          }
+        />
         <Route path='*' element={<NotFound404 />} />
       </Routes>
 
       {background && (
         <Routes>
-          {modalRoutes.map(({ path, element, title }) => (
+          {modalRoutes.map(({ path, element, title, authProtected }) => (
             <Route
               key={path}
               path={path}
               element={
-                <Modal title={title} onClose={() => navigate(-1)}>
-                  {element}
-                </Modal>
+                authProtected ? (
+                  <ProtectedRoute authProtected>
+                    <Modal title={title} onClose={() => navigate(-1)}>
+                      {element}
+                    </Modal>
+                  </ProtectedRoute>
+                ) : (
+                  <Modal title={title} onClose={() => navigate(-1)}>
+                    {element}
+                  </Modal>
+                )
               }
             />
           ))}

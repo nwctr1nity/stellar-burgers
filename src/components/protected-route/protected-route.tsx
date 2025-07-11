@@ -26,7 +26,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   if (!authProtected && user) {
-    return <Navigate to='/' replace />;
+    const from = (location.state as { from?: Location })?.from?.pathname || '/';
+    return <Navigate to={from} replace />;
   }
 
   return children;

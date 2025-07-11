@@ -11,7 +11,10 @@ import {
   getDetailsList,
   getOrderPending
 } from '../../utils/constants';
-import { fetchOrderByNumber } from '../../slices/orders-slice';
+import {
+  fetchOrderByNumber,
+  clearCurrentOrder
+} from '../../slices/orders-slice';
 
 export const OrderInfo: FC = () => {
   const dispatch = useDispatch();
@@ -26,6 +29,9 @@ export const OrderInfo: FC = () => {
     if (number) {
       dispatch(fetchOrderByNumber(parseInt(number)));
     }
+    return () => {
+      dispatch(clearCurrentOrder());
+    };
   }, [dispatch, number]);
 
   /* Готовим данные для отображения */
