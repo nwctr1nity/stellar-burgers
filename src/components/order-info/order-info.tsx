@@ -1,25 +1,42 @@
-import { FC, useMemo } from 'react';
+import { FC, useMemo, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+
 import { Preloader } from '../ui/preloader';
 import { OrderInfoUI } from '../ui/order-info';
-import { TIngredient } from '@utils-types';
+
+import { TIngredient } from '../../utils/types';
+import { useSelector, useDispatch } from '../../services/store';
+import {
+  getOrderData,
+  getDetailsList,
+  getOrderPending
+} from '../../utils/constants';
+import {
+  fetchOrderByNumber,
+  clearCurrentOrder
+} from '../../slices/orders-slice';
 
 export const OrderInfo: FC = () => {
-  /** TODO: взять переменные orderData и ingredients из стора */
-  const orderData = {
-    createdAt: '',
-    ingredients: [],
-    _id: '',
-    status: '',
-    name: '',
-    updatedAt: 'string',
-    number: 0
-  };
+  const dispatch = useDispatch();
 
-  const ingredients: TIngredient[] = [];
+  const orderIngredients: TIngredient[] = useSelector(getDetailsList);
+  const isLoading = useSelector(getOrderPending);
+
+  const { number } = useParams<{ number: string }>();
+  const orderData = useSelector(getOrderData);
+
+  useEffect(() => {
+    if (number) {
+      dispatch(fetchOrderByNumber(parseInt(number)));
+    }
+    return () => {
+      dispatch(clearCurrentOrder());
+    };
+  }, [dispatch, number]);
 
   /* Готовим данные для отображения */
   const orderInfo = useMemo(() => {
-    if (!orderData || !ingredients.length) return null;
+    if (!orderData || !orderIngredients.length) return null;
 
     const date = new Date(orderData.createdAt);
 
@@ -30,7 +47,7 @@ export const OrderInfo: FC = () => {
     const ingredientsInfo = orderData.ingredients.reduce(
       (acc: TIngredientsWithCount, item) => {
         if (!acc[item]) {
-          const ingredient = ingredients.find((ing) => ing._id === item);
+          const ingredient = orderIngredients.find((ing) => ing._id === item);
           if (ingredient) {
             acc[item] = {
               ...ingredient,
@@ -57,9 +74,9 @@ export const OrderInfo: FC = () => {
       date,
       total
     };
-  }, [orderData, ingredients]);
+  }, [orderData, orderIngredients]);
 
-  if (!orderInfo) {
+  if (isLoading || !orderInfo) {
     return <Preloader />;
   }
 

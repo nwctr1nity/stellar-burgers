@@ -32,9 +32,26 @@ export type TOrdersData = {
   totalToday: number;
 };
 
+export type TConstructorItems = {
+  bun: TIngredient | null;
+  ingredients: TConstructorIngredient[];
+};
+
 export type TUser = {
   email: string;
   name: string;
 };
 
 export type TTabMode = 'bun' | 'sauce' | 'main';
+
+export type TConstructorState = {
+  bun: TIngredient | null;
+  ingredients: TConstructorIngredient[];
+};
+
+export type TDetailsState = {
+  list: TIngredient[];
+  selected: TIngredient | null;
+  isLoading: boolean;
+  fetchError: string | null;
+};

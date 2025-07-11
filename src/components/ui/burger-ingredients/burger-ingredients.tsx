@@ -19,50 +19,51 @@ export const BurgerIngredientsUI: FC<BurgerIngredientsUIProps> = memo(
     saucesRef,
     onTabClick
   }) => (
-    <>
-      <section className={styles.burger_ingredients}>
-        <nav>
-          <ul className={styles.menu}>
-            <Tab value='bun' active={currentTab === 'bun'} onClick={onTabClick}>
-              Булки
-            </Tab>
+    <section className={styles.burger_ingredients}>
+      <nav>
+        <ul className={styles.menu}>
+          {['bun', 'main', 'sauce'].map((type) => (
             <Tab
-              value='main'
-              active={currentTab === 'main'}
+              key={type}
+              value={type}
+              active={currentTab === type}
               onClick={onTabClick}
             >
-              Начинки
+              {type === 'bun' ? 'Булки' : type === 'main' ? 'Начинки' : 'Соусы'}
             </Tab>
-            <Tab
-              value='sauce'
-              active={currentTab === 'sauce'}
-              onClick={onTabClick}
-            >
-              Соусы
-            </Tab>
-          </ul>
-        </nav>
-        <div className={styles.content}>
+          ))}
+        </ul>
+      </nav>
+      <div className={styles.content}>
+        {[
+          {
+            title: 'Булки',
+            ingredients: buns,
+            titleRef: titleBunRef,
+            refProp: bunsRef
+          },
+          {
+            title: 'Начинки',
+            ingredients: mains,
+            titleRef: titleMainRef,
+            refProp: mainsRef
+          },
+          {
+            title: 'Соусы',
+            ingredients: sauces,
+            titleRef: titleSaucesRef,
+            refProp: saucesRef
+          }
+        ].map(({ title, ingredients, titleRef, refProp }) => (
           <IngredientsCategory
-            title='Булки'
-            titleRef={titleBunRef}
-            ingredients={buns}
-            ref={bunsRef}
+            key={title}
+            title={title}
+            titleRef={titleRef}
+            ref={refProp}
+            ingredients={ingredients}
           />
-          <IngredientsCategory
-            title='Начинки'
-            titleRef={titleMainRef}
-            ingredients={mains}
-            ref={mainsRef}
-          />
-          <IngredientsCategory
-            title='Соусы'
-            titleRef={titleSaucesRef}
-            ingredients={sauces}
-            ref={saucesRef}
-          />
-        </div>
-      </section>
-    </>
+        ))}
+      </div>
+    </section>
   )
 );
