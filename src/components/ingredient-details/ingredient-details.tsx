@@ -1,14 +1,27 @@
-import { FC } from 'react';
+import { FC, useMemo } from 'react';
 import { Preloader } from '../ui/preloader';
 import { IngredientDetailsUI } from '../ui/ingredient-details';
+import { getDetailsList } from '../../utils/constants';
+import { useSelector } from '../../services/store';
+import { useParams } from 'react-router-dom';
+import { NotFound404 } from '@pages';
 
 export const IngredientDetails: FC = () => {
-  /** TODO: взять переменную из стора */
-  const ingredientData = null;
+  const routeParams = useParams();
+  const ingredients = useSelector(getDetailsList);
 
-  if (!ingredientData) {
+  const ingredientsData = useMemo(
+    () => ingredients.find((ing) => ing._id === routeParams.id),
+    [ingredients, routeParams.id]
+  );
+
+  if (!ingredients.length) {
     return <Preloader />;
   }
 
-  return <IngredientDetailsUI ingredientData={ingredientData} />;
+  if (!ingredientsData) {
+    return <NotFound404 />;
+  }
+
+  return <IngredientDetailsUI ingredientData={ingredientsData} />;
 };
