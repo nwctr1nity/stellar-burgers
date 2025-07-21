@@ -4,6 +4,19 @@ describe('Конструктор бургера', () => {
   const bunName = 'Краторная булка N-200i';
   const fillingName = 'Филе Люминесцентного тетраодонтимформа';
 
+  const ingredientCardSelector = '[data-test="ingredient-card"]';
+  const addButtonSelector = '[data-test="add-button"]';
+  const bunDropZoneSelector = '[data-test="constructor-bun-drop-zone"]';
+  const fillingDropZoneSelector = '[data-test="constructor-filling-drop-zone"]';
+  const ingredientLinkSelector = '[data-test="ingredient-link-main"]';
+  const modalSelector = '[data-test="modal"]';
+  const modalTitleSelector = '[data-test="modal-title"]';
+  const modalCloseSelector = '[data-test="modal-close"]';
+  const modalOverlaySelector = '[data-test="modal-overlay"]';
+  const orderButtonSelector = '[data-test="order-button"]';
+  const orderNumberSelector = '[data-test="order-number"]';
+  const constructorIngredientSelector = '[data-test="constructor-ingredient"]';
+
   before(() => {
     Cypress.on('window:before:load', (win) => {
       win.addEventListener('DOMContentLoaded', () => {
@@ -25,82 +38,74 @@ describe('Конструктор бургера', () => {
   });
 
   it('добавляет булку и начинку в конструктор', () => {
-    // бука
+    // булка
     cy.contains(bunName)
-      .parents('[data-test="ingredient-card"]')
+      .parents(ingredientCardSelector)
       .within(() => {
-        cy.get('[data-test="add-button"]').click();
+        cy.get(addButtonSelector).click();
       });
 
-    cy.get('[data-test="constructor-bun-drop-zone"]')
+    cy.get(bunDropZoneSelector)
       .contains(`${bunName} (верх)`).should('be.visible');
 
     // начинка
     cy.contains(fillingName)
-      .parents('[data-test="ingredient-card"]')
+      .parents(ingredientCardSelector)
       .within(() => {
-        cy.get('[data-test="add-button"]').click();
+        cy.get(addButtonSelector).click();
       });
 
-    cy.get('[data-test="constructor-filling-drop-zone"]')
+    cy.get(fillingDropZoneSelector)
       .contains(fillingName).should('be.visible');
   });
 
   it('открывает и закрывает модалку ингредиента', () => {
     // открывание
     cy.contains(fillingName)
-      .parents('[data-test="ingredient-card"]')
-      .find('[data-test="ingredient-link-main"]')
+      .parents(ingredientCardSelector)
+      .find(ingredientLinkSelector)
       .click();
 
-    cy.get('[data-test="modal"]').should('be.visible');
-    cy.get('[data-test="modal-title"]').contains('Детали ингредиента');
+    cy.get(modalSelector).should('be.visible');
+    cy.get(modalTitleSelector).contains('Детали ингредиента');
 
     // крестик
-    cy.get('[data-test="modal-close"]').click();
-    cy.get('[data-test="modal"]').should('not.exist');
+    cy.get(modalCloseSelector).click();
+    cy.get(modalSelector).should('not.exist');
 
     // оверлей
     cy.contains(fillingName)
-      .parents('[data-test="ingredient-card"]')
-      .find('[data-test="ingredient-link-main"]')
+      .parents(ingredientCardSelector)
+      .find(ingredientLinkSelector)
       .click();
 
-    cy.get('[data-test="modal-overlay"]').click({ force: true });
-    cy.get('[data-test="modal"]').should('not.exist');
+    cy.get(modalOverlaySelector).click({ force: true });
+    cy.get(modalSelector).should('not.exist');
   });
 
   it('оформляет заказ и очищает конструктор', () => {
-    // прокидываем фейковые токены
-    cy.setCookie('accessToken', 'fake-access-token');
-    window.localStorage.setItem('refreshToken', 'fake-refresh-token');
-
     // сборка бургера
     cy.contains(bunName)
-      .parents('[data-test="ingredient-card"]')
+      .parents(ingredientCardSelector)
       .within(() => {
-        cy.get('[data-test="add-button"]').click();
+        cy.get(addButtonSelector).click();
       });
     cy.contains(fillingName)
-      .parents('[data-test="ingredient-card"]')
+      .parents(ingredientCardSelector)
       .within(() => {
-        cy.get('[data-test="add-button"]').click();
+        cy.get(addButtonSelector).click();
       });
 
     // делаем заказ и проверяем его номер
-    cy.get('[data-test="order-button"]').click();
+    cy.get(orderButtonSelector).click();
     cy.wait('@getUser');
     cy.wait('@createOrder');
-    cy.get('[data-test="modal"]').should('be.visible');
-    cy.get('[data-test="order-number"]').contains('1234');
+    cy.get(modalSelector).should('be.visible');
+    cy.get(orderNumberSelector).contains('1234');
 
-    // закрываемм модалку и убеждаемся что конструктор пуст
-    cy.get('[data-test="modal-close"]').click();
-    cy.get('[data-test="modal"]').should('not.exist');
-    cy.get('[data-test="constructor-ingredient"]').should('have.length', 0);
-
-    // убираем токены
-    cy.clearCookie('accessToken');
-    window.localStorage.removeItem('refreshToken');
+    // закрываем модалку и убеждаемся, что конструктор пуст
+    cy.get(modalCloseSelector).click();
+    cy.get(modalSelector).should('not.exist');
+    cy.get(constructorIngredientSelector).should('have.length', 0);
   });
 });
